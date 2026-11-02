@@ -1,0 +1,43 @@
+{"id": "q01", "question": "What is the name of the Tidewell server binary?", "relevant": ["overview"], "answer": "tidewelld"}
+{"id": "q02", "question": "Which programming language is the Tidewell server written in?", "relevant": ["overview"], "answer": "Rust"}
+{"id": "q03", "question": "What is the minimum PostgreSQL version supported for production?", "relevant": ["installation", "storage"], "answer": "PostgreSQL 14"}
+{"id": "q04", "question": "What TCP port must be reachable so that producers can talk to the server?", "relevant": ["installation"], "answer": "7420"}
+{"id": "q05", "question": "Where are Prometheus metrics exposed?", "relevant": ["metrics", "installation"], "answer": "/metrics on port 7421"}
+{"id": "q06", "question": "If a setting is given both as an environment variable and in the config file, which one wins?", "relevant": ["configuration"], "answer": "the environment variable"}
+{"id": "q07", "question": "Which environment variable overrides storage.url?", "relevant": ["configuration"], "answer": "TIDEWELL_STORAGE__URL"}
+{"id": "q08", "question": "How can I validate a configuration file without starting the server?", "relevant": ["configuration", "cli"], "answer": "run tidewell config check"}
+{"id": "q09", "question": "What naming rules apply when I create a new queue?", "relevant": ["queues"], "answer": "lowercase letters, digits and hyphens, up to 64 characters"}
+{"id": "q10", "question": "If I halt dispatching on a queue during an incident, will producers get errors when they submit work?", "relevant": ["queues"], "answer": "no, new jobs are accepted and wait in the pending state"}
+{"id": "q11", "question": "What is the default maximum payload size of a job?", "relevant": ["jobs", "troubleshooting"], "answer": "1 MiB"}
+{"id": "q12", "question": "Once a job reaches which states will it never execute again on its own?", "relevant": ["jobs"], "answer": "succeeded, dead and cancelled"}
+{"id": "q13", "question": "How many tries does a failing task get before it gives up?", "relevant": ["retries"], "answer": "5 attempts in total"}
+{"id": "q14", "question": "How long does the first retry wait, and what is the longest delay between retries?", "relevant": ["retries"], "answer": "2 seconds, capped at 10 minutes"}
+{"id": "q15", "question": "Why is random jitter added to retry delays?", "relevant": ["retries"], "answer": "so jobs that failed together do not all retry at the same instant and overload the dependency"}
+{"id": "q16", "question": "How do I stop retries for an error that can never succeed?", "relevant": ["retries"], "answer": "raise tidewell.PermanentError, or wrap the error with tidewell.Permanent in Go"}
+{"id": "q17", "question": "For how long can I still inspect a job that exhausted all of its retries?", "relevant": ["dead-letter", "retention-and-backups"], "answer": "14 days"}
+{"id": "q18", "question": "What happens to the attempt counter when a dead job is replayed?", "relevant": ["dead-letter"], "answer": "it is reset to zero"}
+{"id": "q19", "question": "In which timezone are cron schedules evaluated by default?", "relevant": ["scheduling"], "answer": "UTC"}
+{"id": "q20", "question": "With the default policy, what happens to cron runs that were missed during an outage?", "relevant": ["scheduling"], "answer": "they are skipped"}
+{"id": "q21", "question": "What is the default job priority, and do higher or lower numbers run first?", "relevant": ["priorities"], "answer": "5, and higher numbers run first"}
+{"id": "q22", "question": "How does Tidewell keep low-priority jobs from waiting forever behind urgent ones?", "relevant": ["priorities"], "answer": "aging raises the effective priority by one for every 60 seconds a job waits"}
+{"id": "q23", "question": "How long is a worker lease valid and how often are heartbeats sent?", "relevant": ["workers"], "answer": "30 seconds, with a heartbeat every 10 seconds"}
+{"id": "q24", "question": "What happens to a job if its worker process dies halfway through?", "relevant": ["workers", "troubleshooting"], "answer": "the lease expires, the attempt is recorded as failed and the job is retried"}
+{"id": "q25", "question": "When the orchestrator asks a worker to stop, how long does it keep finishing its current tasks?", "relevant": ["workers"], "answer": "up to 30 seconds"}
+{"id": "q26", "question": "How much parallelism does a single worker process have out of the box?", "relevant": ["concurrency"], "answer": "4 jobs at a time"}
+{"id": "q27", "question": "How can I guarantee that no more than two report exports run at once across all workers?", "relevant": ["concurrency"], "answer": "set max_running = 2 on the queue"}
+{"id": "q28", "question": "A third-party API allows 100 calls a minute. How do I avoid burning retries on throttling?", "relevant": ["rate-limiting"], "answer": "set a queue rate_limit such as 100/m; jobs waiting for a token do not use attempts"}
+{"id": "q29", "question": "Why should job handlers be idempotent?", "relevant": ["idempotency", "workers"], "answer": "delivery is at-least-once, so a job can run more than once"}
+{"id": "q30", "question": "What does the API return when I enqueue a job whose unique key already exists?", "relevant": ["idempotency"], "answer": "the existing job id with HTTP 200 instead of 201"}
+{"id": "q31", "question": "Which metric is the best signal for alerting on a stuck queue?", "relevant": ["metrics", "troubleshooting"], "answer": "tidewell_oldest_pending_age_seconds"}
+{"id": "q32", "question": "How do I keep passwords out of the logs when payload logging is enabled?", "relevant": ["logging"], "answer": "list the fields in log.redact_fields so they are replaced with [redacted]"}
+{"id": "q33", "question": "What share of requests get traced if I leave the sampling settings alone?", "relevant": ["tracing"], "answer": "10 percent"}
+{"id": "q34", "question": "How many jobs can be created in a single batch request?", "relevant": ["http-api", "client-libraries"], "answer": "up to 500"}
+{"id": "q35", "question": "Is it possible to abort a task that a worker has already picked up?", "relevant": ["http-api"], "answer": "no, cancelling a running job returns HTTP 409"}
+{"id": "q36", "question": "What permission levels exist for API credentials?", "relevant": ["authentication"], "answer": "enqueue, read and admin"}
+{"id": "q37", "question": "If someone steals a database backup, can they use the API tokens in it?", "relevant": ["authentication"], "answer": "no, the server stores only Argon2id hashes of tokens"}
+{"id": "q38", "question": "Can I use MariaDB to store jobs?", "relevant": ["storage"], "answer": "no"}
+{"id": "q39", "question": "How is the cluster leader chosen, and how fast does a new one take over after a crash?", "relevant": ["clustering"], "answer": "by holding a PostgreSQL advisory lock, with failover in about 15 seconds"}
+{"id": "q40", "question": "Can I get high availability while using the embedded database?", "relevant": ["storage", "clustering"], "answer": "no, running a cluster requires PostgreSQL"}
+{"id": "q41", "question": "How do I check that a webhook request really came from Tidewell?", "relevant": ["webhooks"], "answer": "recompute the HMAC-SHA256 digest from the Tidewell-Signature header with the webhook secret and compare it"}
+{"id": "q42", "question": "How do I safely back up a SQLite database while the server is running?", "relevant": ["retention-and-backups", "cli"], "answer": "use tidewell backup to take an online snapshot"}
+{"id": "q43", "question": "Can I downgrade to the previous version after running migrations?", "relevant": ["upgrading"], "answer": "only by restoring the backup taken before the upgrade, since migrations are forward-only"}

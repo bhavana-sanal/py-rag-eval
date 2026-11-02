@@ -1,0 +1,62 @@
+# Compare three chunking strategies and four retrievers on the bundled demo set.
+# Runs fully offline: LSA embeddings and the extractive generator need no model.
+name = "example"
+corpus = "../data/demo/corpus"          # relative to this file
+questions = "../data/demo/questions.jsonl"
+bootstrap_resamples = 2000
+seed = 0
+
+[grid]
+chunker = ["fixed", "recursive", "sentence"]
+retriever = ["bm25", "dense", "hybrid", "hybrid-mmr"]
+k = [3, 5]
+
+[chunkers.fixed]
+type = "fixed"
+size = 120
+overlap = 30
+
+[chunkers.recursive]
+type = "recursive"
+max_words = 150
+
+[chunkers.sentence]
+type = "sentence_window"
+window = 2
+
+[retrievers.bm25]
+type = "bm25"
+k1 = 1.2
+b = 0.75
+
+[retrievers.dense]
+type = "dense"
+
+[retrievers.hybrid]
+type = "hybrid"
+members = ["bm25", "dense"]
+rrf_k = 60
+
+[retrievers.hybrid-mmr]
+type = "hybrid"
+members = ["bm25", "dense"]
+mmr_lambda = 0.7
+mmr_fetch_k = 20
+
+[embedder]
+type = "lsa"
+dim = 128
+# type = "sentence-transformers"     # needs: pip install 'py-rag-eval[embeddings]'
+# model = "all-MiniLM-L6-v2"
+
+[generator]
+type = "extractive"
+# type = "openai"                     # any OpenAI-compatible endpoint
+# model = "llama3.3"
+# base_url = "http://localhost:11434/v1"
+
+# Optional LLM-as-judge; verdicts are cached on disk so re-runs are free.
+# [judge]
+# model = "gpt-5-mini"
+# api_key_env = "OPENAI_API_KEY"
+# cache_dir = "../.rag-eval-cache"
